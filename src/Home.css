@@ -1,11 +1,82 @@
 #root {
-  max-width: 1280px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  /* Removed background-color */
+  color: #2c3e50;
 }
 
 h1 {
-  font-size: 300%;  /* big heading */
-  color: #2c3e50;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #1b263b;
+}
+
+p strong {
+  font-size: 1.1rem;
+  color: #34495e;
+}
+
+p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin: 0.5rem 0 1.5rem 0;
+  color: #444;
+}
+
+ul {
+  text-align: left;
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.6;
+  padding-left: 1.5rem;
+}
+
+button {
+  font-size: 1rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  margin: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #0077b6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #023e8a;
+}
+
+.btn-success {
+  background-color: #40916c;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #1b4332;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2.2rem;
+  }
+
+  ul {
+    font-size: 0.95rem;
+  }
 }
