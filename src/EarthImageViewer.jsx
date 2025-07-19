@@ -31,7 +31,14 @@ function EarthImageViewer() {
       maxLongitudeRef.current.value = maxLon;
       timeRef.current.value = time;
 
-      // Optional: automatically fetch image on load
+       // Clear the stored data so next visits start fresh
+      sessionStorage.removeItem("minLat");
+      sessionStorage.removeItem("maxLat");
+      sessionStorage.removeItem("minLon");
+      sessionStorage.removeItem("maxLon");
+      sessionStorage.removeItem("time");
+
+      // maybe automatically fetch image on load
       // displayImage();
     }
   }, []); // Run once on component mount

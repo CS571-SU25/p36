@@ -1,10 +1,8 @@
 import "./Home.css";
 import NavBar from "./NavBar";
 import { Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 
 function Home() {
-  const navigate = useNavigate();
 
   return (
     <div className="container mt-4">
@@ -14,24 +12,33 @@ function Home() {
 
       {/* Navigation bar */}
       <NavBar />
-
-      {/* Intro section */}
-      <div className="mt-4">
-        <h4>Welcome to ClimaTracker!</h4>
+      <br></br>
+      
+       <div className="intro">
         <p>
-          ClimaTracker is a space-themed interactive web application that uses real NASA data to help you:
+          <strong>Welcome to ClimaTracker!</strong> This interactive space-themed app lets you
+          explore Earth using real NASA data.
         </p>
-        <ul>
-          <li><strong>View real satellite images</strong> of any location on Earth by entering a latitude, longitude, and date.</li>
-          <li><strong>Track live natural events</strong> like wildfires, storms, and volcanoes from NASA’s EONET API.</li>
-          <li><strong>Explore global events visually</strong> using our built-in image viewer powered by NASA Earth Imagery.</li>
-        </ul>
         <p>
-          This site is both educational and engaging, designed to make climate data accessible to everyone.
+          🔭 <strong>Earth Image Viewer:</strong> Enter a latitude, longitude, and date to view real satellite
+          imagery of Earth at that location and time. If the image is unavailable, the app will notify you.
+        </p>
+        <p>
+          🌪️ <strong>Natural Events Tracker:</strong> View a live feed of global natural disasters such as wildfires,
+          storms, and volcanoes, pulled in real-time from NASA's EONET API.
+        </p>
+        <p>
+          📌 Each event includes a “View Image” button that auto-fills the Earth Image Viewer with its
+          location and date, so you can instantly explore real imagery of that event.
+        </p>
+        <p>
+          🔍 Use the filter dropdown to sort natural events by type (e.g., Wildfires, Volcanoes).
+        </p>
+        <p>
+          Enjoy exploring our planet through the lens of real-time satellite data! 🚀
         </p>
       </div>
 
-      
     </div>
   );
 }
