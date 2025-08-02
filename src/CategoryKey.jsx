@@ -1,28 +1,28 @@
-function CategoryKey({ categories, categoryColors }) {
+// CategoryKey.jsx
+import React from 'react';
+import { Card } from 'react-bootstrap';
+
+export default function CategoryKey({ categories, categoryColors }) {
   return (
-    <div style={{ minWidth: "150px", borderLeft: "1px solid #ddd", paddingLeft: "1rem" }}>
-      <h5>Category Key</h5>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {categories.map((cat) => (
-          <li
-            key={cat.id}
-            style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center" }}
-          >
-            <div
-              style={{
-                width: "20px",
-                height: "20px",
-                backgroundColor: categoryColors[cat.id] || "#000",
-                marginRight: "0.5rem",
-                borderRadius: "3px",
-              }}
-            />
-            <span>{cat.title}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Card>
+      <Card.Body>
+        <h5>Category Key</h5>
+        <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+          {categories.map((cat) => (
+            <li key={cat.id} style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+              <div
+                style={{
+                  width: "1rem",
+                  height: "1rem",
+                  backgroundColor: categoryColors[cat.id] || "#000",
+                  marginRight: "0.5rem",
+                }}
+              ></div>
+              {cat.title}
+            </li>
+          ))}
+        </ul>
+      </Card.Body>
+    </Card>
   );
 }
-
-export default CategoryKey;

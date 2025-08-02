@@ -6,16 +6,8 @@ import EventCard from "./EventCard";
 import CategoryKey from "./CategoryKey";
 
 const COLOR_PALETTE = [
-  "#e25822", // orange-red
-  "#007bff", // blue
-  "#d9534f", // red
-  "#6c757d", // gray
-  "#17a2b8", // teal
-  "#f0ad4e", // gold
-  "#5cb85c", // green
-  "#6610f2", // purple
-  "#20c997", // cyan-green
-  "#fd7e14", // orange
+  "#e25822", "#007bff", "#d9534f", "#6c757d", "#17a2b8",
+  "#f0ad4e", "#5cb85c", "#6610f2", "#20c997", "#fd7e14"
 ];
 
 function NaturalEventsTracker() {
@@ -26,14 +18,12 @@ function NaturalEventsTracker() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch categories once on mount
     fetch("https://eonet.gsfc.nasa.gov/api/v2.1/categories")
       .then((res) => res.json())
       .then((data) => {
         const cats = data.categories || [];
         setCategories(cats);
 
-        // Assign colors dynamically, cycling if needed
         const colorsMap = {};
         cats.forEach((cat, idx) => {
           colorsMap[cat.id] = COLOR_PALETTE[idx % COLOR_PALETTE.length];
@@ -44,11 +34,9 @@ function NaturalEventsTracker() {
   }, []);
 
   useEffect(() => {
-    // Fetch events depending on selected category
-    let url =
-      selectedCategory === "all"
-        ? "https://eonet.gsfc.nasa.gov/api/v2.1/events"
-        : `https://eonet.gsfc.nasa.gov/api/v2.1/categories/${selectedCategory}`;
+    const url = selectedCategory === "all"
+      ? "https://eonet.gsfc.nasa.gov/api/v2.1/events"
+      : `https://eonet.gsfc.nasa.gov/api/v2.1/categories/${selectedCategory}`;
 
     fetch(url)
       .then((res) => res.json())
@@ -61,8 +49,8 @@ function NaturalEventsTracker() {
 
   function handleViewInViewer(event) {
     if (!event.geometries || event.geometries.length === 0) return;
-
     const latest = event.geometries[event.geometries.length - 1];
+
     if (latest.type === "Point") {
       const [lon, lat] = latest.coordinates;
       const time = latest.date;
@@ -100,8 +88,16 @@ function NaturalEventsTracker() {
 
       <br />
 
-      <div style={{ display: "flex", gap: "1rem" }}>
-        {/* Events grid */}
+      <div style={{ display: "flex" }}>
+        {/* Sidebar color key */}
+        <div style={{ flex: "0 0 250px", marginRight: "1rem" }}>
+          <CategoryKey
+            categories={categories}
+            categoryColors={categoryColors}
+          />
+        </div>
+
+        {/* Events list */}
         <div style={{ flexGrow: 1 }}>
           <h4>Active Events</h4>
           <Row>
@@ -126,9 +122,6 @@ function NaturalEventsTracker() {
             )}
           </Row>
         </div>
-
-        {/* Sidebar color key */}
-        <CategoryKey categories={categories} categoryColors={categoryColors} />
       </div>
     </div>
   );
