@@ -72,7 +72,8 @@ function NaturalEventsTracker() {
       <h1>Natural Events Tracker</h1>
       <NavBar />
       <br />
-
+      
+      <div className="filter-category-container">
       <Form.Label>Filter by Category</Form.Label>
       <Form.Select
         value={selectedCategory}
@@ -85,6 +86,7 @@ function NaturalEventsTracker() {
           </option>
         ))}
       </Form.Select>
+      </div>
 
       <br />
 
