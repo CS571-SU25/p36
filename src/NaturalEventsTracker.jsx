@@ -1,70 +1,78 @@
 import { useEffect, useState } from "react";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Row, Col } from "react-bootstrap";
 import NavBar from "./NavBar";
 import { useNavigate } from "react-router-dom";
-import EventCard from "./EventCard"; // Reusable component to display a single event
-// arrange cards in a responsive grid layout
-import {Row, Col} from "react-bootstrap";
+import EventCard from "./EventCard";
+import CategoryKey from "./CategoryKey";
 
+const COLOR_PALETTE = [
+  "#e25822", // orange-red
+  "#007bff", // blue
+  "#d9534f", // red
+  "#6c757d", // gray
+  "#17a2b8", // teal
+  "#f0ad4e", // gold
+  "#5cb85c", // green
+  "#6610f2", // purple
+  "#20c997", // cyan-green
+  "#fd7e14", // orange
+];
 
 function NaturalEventsTracker() {
-  // State: All fetched events
   const [events, setEvents] = useState([]);
-  // State: List of event categories for the dropdown
   const [categories, setCategories] = useState([]);
-  // State: The currently selected category from the dropdown
+  const [categoryColors, setCategoryColors] = useState({});
   const [selectedCategory, setSelectedCategory] = useState("all");
-
-  // Navigation hook to redirect to the EarthImageViewer page
   const navigate = useNavigate();
 
-  // Fetch natural events from the EONET API when the selected category changes
   useEffect(() => {
-    let url = "";
+    // Fetch categories once on mount
+    fetch("https://eonet.gsfc.nasa.gov/api/v2.1/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        const cats = data.categories || [];
+        setCategories(cats);
 
-    if (selectedCategory === "all") {
-      url = "https://eonet.gsfc.nasa.gov/api/v2.1/events";
-    } else {
-      url = `https://eonet.gsfc.nasa.gov/api/v2.1/categories/${selectedCategory}`;
-    }
+        // Assign colors dynamically, cycling if needed
+        const colorsMap = {};
+        cats.forEach((cat, idx) => {
+          colorsMap[cat.id] = COLOR_PALETTE[idx % COLOR_PALETTE.length];
+        });
+        setCategoryColors(colorsMap);
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    // Fetch events depending on selected category
+    let url =
+      selectedCategory === "all"
+        ? "https://eonet.gsfc.nasa.gov/api/v2.1/events"
+        : `https://eonet.gsfc.nasa.gov/api/v2.1/categories/${selectedCategory}`;
 
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        // Only keep top 300 events for performance
         const topEvents = (data.events || []).slice(0, 300);
-        console.log("Fetched events:", topEvents);
         setEvents(topEvents);
       })
-      .catch((err) => console.error("Error fetching events:", err));
-  }, [selectedCategory]); // Re-run when user selects a different category
+      .catch(console.error);
+  }, [selectedCategory]);
 
-  // Fetch available categories once on component mount
-  useEffect(() => {
-    fetch("https://eonet.gsfc.nasa.gov/api/v2.1/categories")
-      .then((res) => res.json())
-      .then((data) => setCategories(data.categories || []))
-      .catch((err) => console.error("Error fetching categories:", err));
-  }, []);
-
-  // Called when user clicks "View in EarthImageViewer" on an event
   function handleViewInViewer(event) {
     if (!event.geometries || event.geometries.length === 0) return;
 
     const latest = event.geometries[event.geometries.length - 1];
-
     if (latest.type === "Point") {
       const [lon, lat] = latest.coordinates;
       const time = latest.date;
 
-      // Save bounding box and date to sessionStorage for use in EarthImageViewer
       sessionStorage.setItem("minLat", lat - 0.5);
       sessionStorage.setItem("maxLat", lat + 0.5);
       sessionStorage.setItem("minLon", lon - 0.5);
       sessionStorage.setItem("maxLon", lon + 0.5);
       sessionStorage.setItem("time", time);
 
-      // Redirect user to viewer page
       navigate("/viewer");
     } else {
       alert("Unsupported geometry type: " + latest.type);
@@ -77,7 +85,6 @@ function NaturalEventsTracker() {
       <NavBar />
       <br />
 
-      {/* Dropdown to select a category */}
       <Form.Label>Filter by Category</Form.Label>
       <Form.Select
         value={selectedCategory}
@@ -92,22 +99,37 @@ function NaturalEventsTracker() {
       </Form.Select>
 
       <br />
-      <h4>Active Events</h4>
 
-      {/* Show list of events using EventCard component */}
-      <Row>
-        {events.length === 0 ? (
-          <p>No events found.</p>
-        ) : (
-          events
-            .filter((e) => e.geometries && e.geometries.length > 0)
-            .map((event) => (
-              <Col key={event.id} xs={12} sm={6} md={4} lg={3}>
-                <EventCard event={event} onView={handleViewInViewer} />
-              </Col>
-            ))
-        )}
-      </Row>
+      <div style={{ display: "flex", gap: "1rem" }}>
+        {/* Events grid */}
+        <div style={{ flexGrow: 1 }}>
+          <h4>Active Events</h4>
+          <Row>
+            {events.length === 0 ? (
+              <p>No events found.</p>
+            ) : (
+              events
+                .filter((e) => e.geometries && e.geometries.length > 0)
+                .map((event) => {
+                  const categoryId = event.categories[0]?.id;
+                  const color = categoryColors[categoryId] || "#000";
+                  return (
+                    <Col key={event.id} xs={12} sm={6} md={4} lg={3}>
+                      <EventCard
+                        event={event}
+                        color={color}
+                        onView={handleViewInViewer}
+                      />
+                    </Col>
+                  );
+                })
+            )}
+          </Row>
+        </div>
+
+        {/* Sidebar color key */}
+        <CategoryKey categories={categories} categoryColors={categoryColors} />
+      </div>
     </div>
   );
 }
