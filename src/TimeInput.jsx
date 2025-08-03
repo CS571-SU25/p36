@@ -20,22 +20,24 @@ function TimeInput({ date, time, onDateChange, onTimeChange, onUtcTimeChange }) 
 
     const [hour, minute] = timeStr.split(":").map(Number);
 
-    // Build a UTC Date object with the EST date/time components
-    const dateUTC = new Date(
-      Date.UTC(
-        parseInt(dateStr.slice(0, 4)),
-        parseInt(dateStr.slice(5, 7)) - 1,
-        parseInt(dateStr.slice(8, 10)),
-        hour,
-        minute
-      )
-    );
+    // Parse EST components as UTC components offset by 5 hours
+    // Create a Date object in UTC by manually building date components
+    // EST is UTC-5, so when converting EST → UTC, subtract 5 hours from UTC
 
-    // EST is UTC-5, so add 5 hours to convert to UTC
-    dateUTC.setUTCHours(dateUTC.getUTCHours() + 5);
+    // Build a Date in UTC:
+    const year = parseInt(dateStr.slice(0, 4));
+    const month = parseInt(dateStr.slice(5, 7)) - 1; // 0-based month
+    const day = parseInt(dateStr.slice(8, 10));
 
-    return dateUTC.toISOString();
-  }
+    // EST time is 5 hours behind UTC → add 5 hours to EST to get UTC
+    // But since we want a UTC Date object, add 5 hours to the hour
+
+    // Construct date in UTC by adding 5 hours
+    const utcDate = new Date(Date.UTC(year, month, day, hour + 5, minute));
+
+    return utcDate.toISOString();
+    }
+
 
   useEffect(() => {
     if (date && time && onUtcTimeChange) {

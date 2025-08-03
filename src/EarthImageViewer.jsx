@@ -4,26 +4,28 @@ import NavBar from "./NavBar";
 import ImageDisplay from "./ImageDisplay";
 import TimeInput from "./TimeInput";
 
-// Helper to convert UTC ISO string → EST date and time strings
 function utcToEstDateTime(utcISOString) {
   if (!utcISOString) return { date: "", time: "" };
 
   const utcDate = new Date(utcISOString);
 
-  // EST is UTC -5 hours
-  const estMs = utcDate.getTime() - 5 * 60 * 60 * 1000;
-  const estDate = new Date(estMs);
+  // EST is UTC -5, so subtract 5 hours using UTC methods:
+  const estDate = new Date(utcDate.getTime() - 5 * 60 * 60 * 1000);
 
-  // Format YYYY-MM-DD
-  const date = estDate.toISOString().slice(0, 10);
+  // Use UTC getters to get date components (not local getters!)
+  const year = estDate.getUTCFullYear();
+  const month = (estDate.getUTCMonth() + 1).toString().padStart(2, "0");
+  const day = estDate.getUTCDate().toString().padStart(2, "0");
 
-  // Format HH:MM 24-hour, pad zero if needed
-  const hours = estDate.getHours().toString().padStart(2, "0");
-  const minutes = estDate.getMinutes().toString().padStart(2, "0");
-  const time = `${hours}:${minutes}`;
+  const hours = estDate.getUTCHours().toString().padStart(2, "0");
+  const minutes = estDate.getUTCMinutes().toString().padStart(2, "0");
 
-  return { date, time };
+  return {
+    date: `${year}-${month}-${day}`,
+    time: `${hours}:${minutes}`
+  };
 }
+
 
 function EarthImageViewer() {
   // input refs for coordinates
