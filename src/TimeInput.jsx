@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Form } from "react-bootstrap";
 
 /**
@@ -6,25 +6,30 @@ import { Form } from "react-bootstrap";
  * then converts it to UTC ISO string and passes it back via onUtcTimeChange.
  *
  * Props:
- * - onUtcTimeChange: function(utcISOString) called whenever inputs change and produce a valid UTC time.
+ * - date: EST date string "YYYY-MM-DD"
+ * - time: EST time string "HH:mm"
+ * - onDateChange: function(newDate)
+ * - onTimeChange: function(newTime)
+ * - onUtcTimeChange: function(utcISOString)
  */
-function TimeInput({ onUtcTimeChange }) {
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
 
+function TimeInput({ date, time, onDateChange, onTimeChange, onUtcTimeChange }) {
+  // Convert EST date/time to UTC ISO string
   function convertESTtoUTC(dateStr, timeStr) {
     if (!dateStr || !timeStr) return "";
 
     const [hour, minute] = timeStr.split(":").map(Number);
 
     // Build a UTC Date object with the EST date/time components
-    const dateUTC = new Date(Date.UTC(
-      parseInt(dateStr.slice(0, 4)),
-      parseInt(dateStr.slice(5, 7)) - 1,
-      parseInt(dateStr.slice(8, 10)),
-      hour,
-      minute
-    ));
+    const dateUTC = new Date(
+      Date.UTC(
+        parseInt(dateStr.slice(0, 4)),
+        parseInt(dateStr.slice(5, 7)) - 1,
+        parseInt(dateStr.slice(8, 10)),
+        hour,
+        minute
+      )
+    );
 
     // EST is UTC-5, so add 5 hours to convert to UTC
     dateUTC.setUTCHours(dateUTC.getUTCHours() + 5);
@@ -33,8 +38,8 @@ function TimeInput({ onUtcTimeChange }) {
   }
 
   useEffect(() => {
-    const utcString = convertESTtoUTC(date, time);
-    if (onUtcTimeChange) {
+    if (date && time && onUtcTimeChange) {
+      const utcString = convertESTtoUTC(date, time);
       onUtcTimeChange(utcString);
     }
   }, [date, time, onUtcTimeChange]);
@@ -46,7 +51,7 @@ function TimeInput({ onUtcTimeChange }) {
         <Form.Control
           type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          onChange={(e) => onDateChange(e.target.value)}
         />
       </Form.Group>
 
@@ -55,7 +60,7 @@ function TimeInput({ onUtcTimeChange }) {
         <Form.Control
           type="time"
           value={time}
-          onChange={(e) => setTime(e.target.value)}
+          onChange={(e) => onTimeChange(e.target.value)}
           step="60"
         />
       </Form.Group>

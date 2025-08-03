@@ -4,6 +4,27 @@ import NavBar from "./NavBar";
 import ImageDisplay from "./ImageDisplay";
 import TimeInput from "./TimeInput";
 
+// Helper to convert UTC ISO string → EST date and time strings
+function utcToEstDateTime(utcISOString) {
+  if (!utcISOString) return { date: "", time: "" };
+
+  const utcDate = new Date(utcISOString);
+
+  // EST is UTC -5 hours
+  const estMs = utcDate.getTime() - 5 * 60 * 60 * 1000;
+  const estDate = new Date(estMs);
+
+  // Format YYYY-MM-DD
+  const date = estDate.toISOString().slice(0, 10);
+
+  // Format HH:MM 24-hour, pad zero if needed
+  const hours = estDate.getHours().toString().padStart(2, "0");
+  const minutes = estDate.getMinutes().toString().padStart(2, "0");
+  const time = `${hours}:${minutes}`;
+
+  return { date, time };
+}
+
 function EarthImageViewer() {
   // input refs for coordinates
   const minLatitudeRef = useRef();
@@ -14,6 +35,12 @@ function EarthImageViewer() {
   // state for image URL, alt text, and UTC time string
   const [imageURL, setImageURL] = useState();
   const [altText, setAltText] = useState("");
+
+  // EST inputs for date/time
+  const [estDate, setEstDate] = useState("");
+  const [estTime, setEstTime] = useState("");
+
+  // UTC time string for API
   const [utcTime, setUtcTime] = useState("");
 
   // On mount, load sessionStorage values if present
@@ -29,9 +56,13 @@ function EarthImageViewer() {
       maxLatitudeRef.current.value = maxLat;
       minLongitudeRef.current.value = minLon;
       maxLongitudeRef.current.value = maxLon;
+
+      const { date, time: t } = utcToEstDateTime(time);
+      setEstDate(date);
+      setEstTime(t);
       setUtcTime(time);
 
-      // clear session storage items after reading
+      // Clear sessionStorage after loading
       sessionStorage.removeItem("minLat");
       sessionStorage.removeItem("maxLat");
       sessionStorage.removeItem("minLon");
@@ -40,7 +71,12 @@ function EarthImageViewer() {
     }
   }, []);
 
-  // Fetch the image using bounding box and UTC time
+  // Update UTC time when EST date/time changes from TimeInput
+  function handleUtcTimeChange(newUtc) {
+    setUtcTime(newUtc);
+  }
+
+  // Fetch and display image from NASA API
   function displayImage() {
     if (!utcTime) {
       alert("Please enter a valid EST time.");
@@ -108,7 +144,13 @@ function EarthImageViewer() {
             </Form.Group>
 
             <h4>Enter Time (EST)</h4>
-            <TimeInput onUtcTimeChange={setUtcTime} />
+            <TimeInput
+              date={estDate}
+              time={estTime}
+              onDateChange={setEstDate}
+              onTimeChange={setEstTime}
+              onUtcTimeChange={handleUtcTimeChange}
+            />
 
             <Button onClick={displayImage}>Find Image</Button>
           </div>
