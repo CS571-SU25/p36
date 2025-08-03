@@ -1,20 +1,18 @@
 import "./Home.css";
 import NavBar from "./NavBar";
-import { Button } from "react-bootstrap";
 
 function Home() {
 
   return (
-    <div className="container mt-4">
+    <div>
       {/* Title and attribution */}
-      <h1 className="text-center">🌍 ClimaTracker</h1>
-      <p className="text-center"><strong>By Vihan Dalvi</strong></p>
+      <h1>🌍 ClimaTracker</h1>
 
       {/* Navigation bar */}
       <NavBar />
       <br></br>
       
-       <div className="intro">
+       <div className="container mt-4">
         <p>
           <strong>Welcome to ClimaTracker!</strong> This interactive space-themed app lets you
           explore Earth using real NASA data.
