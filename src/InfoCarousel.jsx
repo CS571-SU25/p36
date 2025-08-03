@@ -72,7 +72,7 @@ function InfoCarousel() {
   }
 
   return (
-    <Container className="mt-4 border rounded p-4 bg-light">
+    <Container className="mt-4 border rounded p-4 bg-light" style={{ maxWidth: "1500px", width: "90%" }}>
       <h2>{infoSlides[index].title}</h2>
       <div>{infoSlides[index].content}</div>
 

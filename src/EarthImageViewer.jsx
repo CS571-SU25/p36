@@ -109,7 +109,7 @@ function EarthImageViewer() {
 
   return (
     <div>
-      <h1 className="page-title">Earth Image Viewer</h1>
+      <h1 className="page-title">🌍Earth Image Viewer</h1>
       <NavBar />
       <br />
 

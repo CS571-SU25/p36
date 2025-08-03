@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Button, Form, Row, Col, Spinner, Pagination } from "react-bootstrap";
+import { Button, Form, Row, Col, Spinner } from "react-bootstrap";
 import NavBar from "./NavBar";
 import { useNavigate } from "react-router-dom";
 import EventCard from "./EventCard";
 import CategoryKey from "./CategoryKey";
 import CategoryFilter from "./CategoryFilter";
+import PaginationControl from "./PaginationControl"; // import new pagination component
 
 // Fixed color palette for categories
 const COLOR_PALETTE = [
@@ -54,7 +55,6 @@ function NaturalEventsTracker() {
         // Filter to events with geometries and limit to top 300
         const topEvents = (data.events || []).filter(e => e.geometries?.length > 0).slice(0, 300);
         setEvents(topEvents);
-        console.log(topEvents);
         setCurrentPage(1); // reset pagination to first page
       })
       .catch(console.error)
@@ -95,7 +95,7 @@ function NaturalEventsTracker() {
 
   return (
     <div>
-      <h1>Natural Events Tracker</h1>
+      <h1>🌩️Natural Events Tracker</h1>
       <NavBar />
       <br />
 
@@ -119,10 +119,10 @@ function NaturalEventsTracker() {
 
         {/* Main content area: event cards and pagination */}
         <div style={{ flexGrow: 1 }}>
-          <h4>Active Events</h4>
+          <h4>Top Active Events from Satellite</h4>
           {loading ? (
             // Show spinner while loading events
-            <div style={{ textAlign: "center", padding: "2rem" }}>
+            <div style={{ textAlign: "center-left", padding: "2rem" }}>
               <Spinner animation="border" role="status">
                 <span className="visually-hidden">Loading...</span>
               </Spinner>
@@ -156,25 +156,11 @@ function NaturalEventsTracker() {
               {/* Pagination controls if events present */}
               {currentEvents.length > 0 && (
                 <div className="d-flex justify-content-center mt-4">
-                  <Pagination>
-                    <Pagination.Prev
-                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                      disabled={currentPage === 1}
-                    />
-                    {[...Array(totalPages)].map((_, idx) => (
-                      <Pagination.Item
-                        key={idx + 1}
-                        active={idx + 1 === currentPage}
-                        onClick={() => setCurrentPage(idx + 1)}
-                      >
-                        {idx + 1}
-                      </Pagination.Item>
-                    ))}
-                    <Pagination.Next
-                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                    />
-                  </Pagination>
+                  <PaginationControl
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
                 </div>
               )}
             </>
