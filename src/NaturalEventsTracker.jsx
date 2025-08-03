@@ -17,7 +17,7 @@ function NaturalEventsTracker() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 30;
+  const eventsPerPage = 32;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -142,28 +142,30 @@ function NaturalEventsTracker() {
                 </Row>
               )}
 
+              {currentEvents.length > 0 && (
+                <div className="d-flex justify-content-center mt-4">
+                  <Pagination>
+                    <Pagination.Prev
+                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      disabled={currentPage === 1}
+                    />
+                    {[...Array(totalPages)].map((_, idx) => (
+                      <Pagination.Item
+                        key={idx + 1}
+                        active={idx + 1 === currentPage}
+                        onClick={() => setCurrentPage(idx + 1)}
+                      >
+                        {idx + 1}
+                      </Pagination.Item>
+                    ))}
+                    <Pagination.Next
+                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                    />
+                  </Pagination>
+                </div>
+              )}
 
-              <div className="d-flex justify-content-center mt-4">
-                <Pagination>
-                  <Pagination.Prev
-                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                    disabled={currentPage === 1}
-                  />
-                  {[...Array(totalPages)].map((_, idx) => (
-                    <Pagination.Item
-                      key={idx + 1}
-                      active={idx + 1 === currentPage}
-                      onClick={() => setCurrentPage(idx + 1)}
-                    >
-                      {idx + 1}
-                    </Pagination.Item>
-                  ))}
-                  <Pagination.Next
-                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                  />
-                </Pagination>
-              </div>
             </>
           )}
         </div>
