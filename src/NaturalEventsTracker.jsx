@@ -100,15 +100,13 @@ function NaturalEventsTracker() {
       <br />
 
       {/* Category filter dropdown */}
-      <div className="filter-category-container">
+      <div className="filter-category-container" >
         <CategoryFilter
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
           categories={categories}
         />
       </div>
-
-      <br />
 
       <div style={{ display: "flex" }}>
         {/* Left sidebar with category color key */}

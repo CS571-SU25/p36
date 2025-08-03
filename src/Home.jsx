@@ -1,10 +1,11 @@
 import NavBar from "./NavBar";
 import InfoCarousel from "./InfoCarousel.jsx";
+import "./Home.css"
 
 function Home() {
   return (
     <div>
-      <h1 className="text-center">🌍 ClimaTracker</h1>
+      <h1>🌍 ClimaTracker</h1>
       <NavBar />
       <br />
 
