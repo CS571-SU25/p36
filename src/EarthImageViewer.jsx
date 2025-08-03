@@ -4,15 +4,20 @@ import NavBar from "./NavBar";
 import ImageDisplay from "./ImageDisplay";
 import TimeInput from "./TimeInput";
 
+/**
+ * Converts a UTC ISO string into EST date and time strings.
+ * EST is UTC minus 5 hours.
+ * Returns an object: { date: "YYYY-MM-DD", time: "HH:mm" }.
+ */
 function utcToEstDateTime(utcISOString) {
   if (!utcISOString) return { date: "", time: "" };
 
   const utcDate = new Date(utcISOString);
 
-  // EST is UTC -5, so subtract 5 hours using UTC methods:
+  // Subtract 5 hours in milliseconds to convert UTC to EST
   const estDate = new Date(utcDate.getTime() - 5 * 60 * 60 * 1000);
 
-  // Use UTC getters to get date components (not local getters!)
+  // Use UTC getters to get components (avoid local timezone issues)
   const year = estDate.getUTCFullYear();
   const month = (estDate.getUTCMonth() + 1).toString().padStart(2, "0");
   const day = estDate.getUTCDate().toString().padStart(2, "0");
@@ -26,26 +31,25 @@ function utcToEstDateTime(utcISOString) {
   };
 }
 
-
 function EarthImageViewer() {
-  // input refs for coordinates
+  // Refs to input fields for coordinates (min/max latitude and longitude)
   const minLatitudeRef = useRef();
   const minLongitudeRef = useRef();
   const maxLatitudeRef = useRef();
   const maxLongitudeRef = useRef();
 
-  // state for image URL, alt text, and UTC time string
+  // State for image URL and alt text shown in the image display
   const [imageURL, setImageURL] = useState();
   const [altText, setAltText] = useState("");
 
-  // EST inputs for date/time
+  // EST date and time inputs
   const [estDate, setEstDate] = useState("");
   const [estTime, setEstTime] = useState("");
 
-  // UTC time string for API
+  // UTC time string used for the API call
   const [utcTime, setUtcTime] = useState("");
 
-  // On mount, load sessionStorage values if present
+  // On mount: load any stored coordinates and time from sessionStorage (e.g., from NaturalEventsTracker)
   useEffect(() => {
     const minLat = sessionStorage.getItem("minLat");
     const maxLat = sessionStorage.getItem("maxLat");
@@ -54,17 +58,21 @@ function EarthImageViewer() {
     const time = sessionStorage.getItem("time");
 
     if (minLat && maxLat && minLon && maxLon && time) {
+      // Set input values to loaded coordinates
       minLatitudeRef.current.value = minLat;
       maxLatitudeRef.current.value = maxLat;
       minLongitudeRef.current.value = minLon;
       maxLongitudeRef.current.value = maxLon;
 
+      // Convert UTC time to EST for display in inputs
       const { date, time: t } = utcToEstDateTime(time);
       setEstDate(date);
       setEstTime(t);
+
+      // Set the UTC time state used for the API call
       setUtcTime(time);
 
-      // Clear sessionStorage after loading
+      // Clear sessionStorage to avoid stale data
       sessionStorage.removeItem("minLat");
       sessionStorage.removeItem("maxLat");
       sessionStorage.removeItem("minLon");
@@ -73,12 +81,12 @@ function EarthImageViewer() {
     }
   }, []);
 
-  // Update UTC time when EST date/time changes from TimeInput
+  // Callback to update UTC time from TimeInput component
   function handleUtcTimeChange(newUtc) {
     setUtcTime(newUtc);
   }
 
-  // Fetch and display image from NASA API
+  // Fetch satellite image from NASA API and update image URL and alt text
   function displayImage() {
     if (!utcTime) {
       alert("Please enter a valid EST time.");
@@ -90,6 +98,7 @@ function EarthImageViewer() {
     )
       .then((res) => res.blob())
       .then((blob) => {
+        // Create a blob URL for the fetched image
         setImageURL(URL.createObjectURL(blob));
         setAltText(`Satellite image of Earth taken on ${utcTime}`);
       })
@@ -111,7 +120,7 @@ function EarthImageViewer() {
           gap: "2rem",
         }}
       >
-        {/* Left half: input form */}
+        {/* Left side: coordinate and time input form */}
         <div
           style={{
             flex: "1 1 50%",
@@ -146,6 +155,7 @@ function EarthImageViewer() {
             </Form.Group>
 
             <h4>Enter Time (EST)</h4>
+            {/* Pass EST date/time state and callbacks to TimeInput */}
             <TimeInput
               date={estDate}
               time={estTime}
@@ -158,7 +168,7 @@ function EarthImageViewer() {
           </div>
         </div>
 
-        {/* Right half: image display */}
+        {/* Right side: image display component */}
         <div
           style={{
             flex: "1 1 50%",

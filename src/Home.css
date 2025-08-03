@@ -1,29 +1,52 @@
+/* Center the main title */
 h1 {
   font-size: 3rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   color: #1b263b;
-
-  text-align: center; /* center the titles */
+  text-align: center;
 }
 
+/* Center the navbar */
 nav {
-  text-align: center; /* center the navbar */
+  text-align: center;
 }
 
-.filter-category-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* Container styling */
+.container.mt-4 {
+  max-width: 700px;       /* limit width for easier reading */
+  margin-left: auto;
+  margin-right: auto;     /* center horizontally */
+  padding: 1rem 2rem;
+  background-color: #f9fafb;  /* very light background for contrast */
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Paragraphs spacing and font size */
+.container.mt-4 p {
+  font-size: 1.1rem;
   margin-bottom: 1rem;
 }
 
-.filter-category-container select {
-  max-width: 500px;
-  width: 100%;
+/* Headings inside container */
+.container.mt-4 h5 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #0b3d91;
+  font-weight: 600;
+  border-bottom: 2px solid #0b3d91;
+  padding-bottom: 0.3rem;
 }
 
-p {
-  size: 16px;
+/* Code inline style */
+.container.mt-4 code {
+  background-color: #eaeaea;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.95rem;
 }
-

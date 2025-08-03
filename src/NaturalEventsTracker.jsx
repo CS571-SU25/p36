@@ -6,21 +6,24 @@ import EventCard from "./EventCard";
 import CategoryKey from "./CategoryKey";
 import CategoryFilter from "./CategoryFilter";
 
+// Fixed color palette for categories
 const COLOR_PALETTE = [
   "#e25822", "#007bff", "#d9534f", "#6c757d", "#17a2b8",
   "#f0ad4e", "#5cb85c", "#6610f2", "#20c997", "#fd7e14"
 ];
 
 function NaturalEventsTracker() {
-  const [events, setEvents] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [categoryColors, setCategoryColors] = useState({});
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 32;
-  const navigate = useNavigate();
+  // State variables
+  const [events, setEvents] = useState([]); // list of natural events
+  const [categories, setCategories] = useState([]); // event categories
+  const [categoryColors, setCategoryColors] = useState({}); // map of category IDs to colors
+  const [selectedCategory, setSelectedCategory] = useState("all"); // currently selected filter category
+  const [loading, setLoading] = useState(true); // loading indicator
+  const [currentPage, setCurrentPage] = useState(1); // pagination current page
+  const eventsPerPage = 32; // events to show per page
+  const navigate = useNavigate(); // router navigation function
 
+  // Fetch event categories once on mount
   useEffect(() => {
     fetch("https://eonet.gsfc.nasa.gov/api/v2.1/categories")
       .then((res) => res.json())
@@ -28,6 +31,7 @@ function NaturalEventsTracker() {
         const cats = data.categories || [];
         setCategories(cats);
 
+        // Assign a color to each category ID
         const colorsMap = {};
         cats.forEach((cat, idx) => {
           colorsMap[cat.id] = COLOR_PALETTE[idx % COLOR_PALETTE.length];
@@ -37,6 +41,7 @@ function NaturalEventsTracker() {
       .catch(console.error);
   }, []);
 
+  // Fetch events whenever selectedCategory changes
   useEffect(() => {
     setLoading(true);
     const url = selectedCategory === "all"
@@ -46,15 +51,20 @@ function NaturalEventsTracker() {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
+        // Filter to events with geometries and limit to top 300
         const topEvents = (data.events || []).filter(e => e.geometries?.length > 0).slice(0, 300);
         setEvents(topEvents);
         console.log(topEvents);
-        setCurrentPage(1);
+        setCurrentPage(1); // reset pagination to first page
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [selectedCategory]);
 
+  /**
+   * Handler for when user clicks "View in Viewer" on an event.
+   * Saves coordinates and time to sessionStorage and navigates to EarthImageViewer.
+   */
   function handleViewInViewer(event) {
     if (!event.geometries || event.geometries.length === 0) return;
     const latest = event.geometries[event.geometries.length - 1];
@@ -63,22 +73,24 @@ function NaturalEventsTracker() {
       const [lon, lat] = latest.coordinates;
       const time = latest.date;
 
+      // Save bounding box with 0.5 degrees padding in sessionStorage
       sessionStorage.setItem("minLat", lat - 0.5);
       sessionStorage.setItem("maxLat", lat + 0.5);
       sessionStorage.setItem("minLon", lon - 0.5);
       sessionStorage.setItem("maxLon", lon + 0.5);
       sessionStorage.setItem("time", time);
 
+      // Navigate to the image viewer page
       navigate("/viewer");
     } else {
       alert("Unsupported geometry type: " + latest.type);
     }
   }
 
+  // Pagination calculations
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
   const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
-
   const totalPages = Math.ceil(events.length / eventsPerPage);
 
   return (
@@ -87,6 +99,7 @@ function NaturalEventsTracker() {
       <NavBar />
       <br />
 
+      {/* Category filter dropdown */}
       <div className="filter-category-container">
         <CategoryFilter
           selectedCategory={selectedCategory}
@@ -98,6 +111,7 @@ function NaturalEventsTracker() {
       <br />
 
       <div style={{ display: "flex" }}>
+        {/* Left sidebar with category color key */}
         <div style={{ flex: "0 0 250px", marginRight: "1rem", marginLeft: "1rem" }}>
           <CategoryKey
             categories={categories}
@@ -105,9 +119,11 @@ function NaturalEventsTracker() {
           />
         </div>
 
+        {/* Main content area: event cards and pagination */}
         <div style={{ flexGrow: 1 }}>
           <h4>Active Events</h4>
           {loading ? (
+            // Show spinner while loading events
             <div style={{ textAlign: "center", padding: "2rem" }}>
               <Spinner animation="border" role="status">
                 <span className="visually-hidden">Loading...</span>
@@ -116,10 +132,12 @@ function NaturalEventsTracker() {
           ) : (
             <>
               {currentEvents.length === 0 ? (
+                // Show message if no events found
                 <div className="text-center mt-4">
                   <h4>No events found.</h4>
                 </div>
               ) : (
+                // Show grid of event cards for current page
                 <Row>
                   {currentEvents.map((event) => {
                     const categoryId = event.categories[0]?.id;
@@ -137,6 +155,7 @@ function NaturalEventsTracker() {
                 </Row>
               )}
 
+              {/* Pagination controls if events present */}
               {currentEvents.length > 0 && (
                 <div className="d-flex justify-content-center mt-4">
                   <Pagination>
@@ -160,7 +179,6 @@ function NaturalEventsTracker() {
                   </Pagination>
                 </div>
               )}
-
             </>
           )}
         </div>
