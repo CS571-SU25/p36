@@ -48,6 +48,7 @@ function NaturalEventsTracker() {
       .then((data) => {
         const topEvents = (data.events || []).filter(e => e.geometries?.length > 0).slice(0, 300);
         setEvents(topEvents);
+        console.log(topEvents);
         setCurrentPage(1);
       })
       .catch(console.error)

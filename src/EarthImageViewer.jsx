@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import NavBar from "./NavBar";
+import ImageDisplay from "./ImageDisplay";
 
 function EarthImageViewer() {
   // input refs
@@ -9,8 +10,11 @@ function EarthImageViewer() {
   const maxLatitudeRef = useRef();
   const maxLongitudeRef = useRef();
   const timeRef = useRef();
+  
 
   const [imageURL, setImageURL] = useState();
+  const [altText, setAltText] = useState("");
+
 
   useEffect(() => {
     const minLat = sessionStorage.getItem("minLat");
@@ -41,6 +45,7 @@ function EarthImageViewer() {
       .then((res) => res.blob())
       .then((blob) => {
         setImageURL(URL.createObjectURL(blob));
+        setAltText(`Satellite image of Earth taken on ${timeRef.current.value}`);
       })
       .catch((err) => {
         console.log(err);
@@ -115,13 +120,7 @@ function EarthImageViewer() {
             boxSizing: "border-box",
           }}
         >
-          {imageURL && (
-            <img
-              src={imageURL}
-              alt="Earth from NASA GIBS"
-              style={{ maxWidth: "100%", borderRadius: "8px", boxShadow: "0 0 8px rgba(0,0,0,0.3)" }}
-            />
-          )}
+          <ImageDisplay imageURL={imageURL} altText={altText} />
         </div>
       </div>
     </div>
