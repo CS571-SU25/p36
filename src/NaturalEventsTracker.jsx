@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Form, Row, Col } from "react-bootstrap";
+import { Button, Form, Row, Col, Spinner, Pagination } from "react-bootstrap";
 import NavBar from "./NavBar";
 import { useNavigate } from "react-router-dom";
 import EventCard from "./EventCard";
@@ -15,6 +15,9 @@ function NaturalEventsTracker() {
   const [categories, setCategories] = useState([]);
   const [categoryColors, setCategoryColors] = useState({});
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const eventsPerPage = 30;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,6 +37,7 @@ function NaturalEventsTracker() {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     const url = selectedCategory === "all"
       ? "https://eonet.gsfc.nasa.gov/api/v2.1/events"
       : `https://eonet.gsfc.nasa.gov/api/v2.1/categories/${selectedCategory}`;
@@ -41,10 +45,12 @@ function NaturalEventsTracker() {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        const topEvents = (data.events || []).slice(0, 300);
+        const topEvents = (data.events || []).filter(e => e.geometries?.length > 0).slice(0, 300);
         setEvents(topEvents);
+        setCurrentPage(1);
       })
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [selectedCategory]);
 
   function handleViewInViewer(event) {
@@ -67,32 +73,36 @@ function NaturalEventsTracker() {
     }
   }
 
+  const indexOfLastEvent = currentPage * eventsPerPage;
+  const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+  const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
+
+  const totalPages = Math.ceil(events.length / eventsPerPage);
+
   return (
     <div>
       <h1>Natural Events Tracker</h1>
       <NavBar />
       <br />
-      
+
       <div className="filter-category-container">
-      <Form.Label><h4>Filter by Category</h4></Form.Label>
-      <Form.Select
-        value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value)}
-      >
-        <option value="all">All</option>
-        {categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.title}
-          </option>
-        ))}
-      </Form.Select>
+        <Form.Label><h4>Filter by Category</h4></Form.Label>
+        <Form.Select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="all">All</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.title}
+            </option>
+          ))}
+        </Form.Select>
       </div>
 
       <br />
 
       <div style={{ display: "flex" }}>
-        {/* Sidebar color key */}
-        {/* small gap between left portion of screen and category key */}
         <div style={{ flex: "0 0 250px", marginRight: "1rem", marginLeft: "1rem" }}>
           <CategoryKey
             categories={categories}
@@ -100,30 +110,62 @@ function NaturalEventsTracker() {
           />
         </div>
 
-        {/* Events list */}
         <div style={{ flexGrow: 1 }}>
           <h4>Active Events</h4>
-          <Row>
-            {events.length === 0 ? (
-              <p>No events found.</p>
-            ) : (
-              events
-                .filter((e) => e.geometries && e.geometries.length > 0)
-                .map((event) => {
-                  const categoryId = event.categories[0]?.id;
-                  const color = categoryColors[categoryId] || "#000";
-                  return (
-                    <Col key={event.id} xs={12} sm={6} md={4} lg={3}>
-                      <EventCard
-                        event={event}
-                        color={color}
-                        onView={handleViewInViewer}
-                      />
-                    </Col>
-                  );
-                })
-            )}
-          </Row>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "2rem" }}>
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            </div>
+          ) : (
+            <>
+              {currentEvents.length === 0 ? (
+                <div className="text-center mt-4">
+                  <h4>No events found.</h4>
+                </div>
+              ) : (
+                <Row>
+                  {currentEvents.map((event) => {
+                    const categoryId = event.categories[0]?.id;
+                    const color = categoryColors[categoryId] || "#000";
+                    return (
+                      <Col key={event.id} xs={12} sm={6} md={4} lg={3}>
+                        <EventCard
+                          event={event}
+                          color={color}
+                          onView={handleViewInViewer}
+                        />
+                      </Col>
+                    );
+                  })}
+                </Row>
+              )}
+
+
+              <div className="d-flex justify-content-center mt-4">
+                <Pagination>
+                  <Pagination.Prev
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                  />
+                  {[...Array(totalPages)].map((_, idx) => (
+                    <Pagination.Item
+                      key={idx + 1}
+                      active={idx + 1 === currentPage}
+                      onClick={() => setCurrentPage(idx + 1)}
+                    >
+                      {idx + 1}
+                    </Pagination.Item>
+                  ))}
+                  <Pagination.Next
+                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  />
+                </Pagination>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
