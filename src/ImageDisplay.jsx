@@ -21,8 +21,22 @@ function ImageDisplay({ imageURL, altText }) {
         }}
       />
       <p style={{ marginTop: "10px", fontStyle: "italic", color: "#666" }}>
-        {hasError ? "Sorry, the image could not be loaded." : altText}
+        {hasError
+          ? "Sorry, the image could not be loaded."
+          : altText}
       </p>
+      {!hasError && (
+        <p
+          style={{
+            marginTop: "6px",
+            fontSize: "0.85rem",
+            color: "#b33",
+            fontWeight: "600",
+          }}
+        >
+          ⚠️ Note: Black spots may appear on NASA EONET images due to satellite data gaps.
+        </p>
+      )}
     </div>
   );
 }
