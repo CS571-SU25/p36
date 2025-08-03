@@ -74,7 +74,7 @@ function NaturalEventsTracker() {
       <br />
       
       <div className="filter-category-container">
-      <Form.Label>Filter by Category</Form.Label>
+      <Form.Label><h4>Filter by Category</h4></Form.Label>
       <Form.Select
         value={selectedCategory}
         onChange={(e) => setSelectedCategory(e.target.value)}
@@ -92,7 +92,8 @@ function NaturalEventsTracker() {
 
       <div style={{ display: "flex" }}>
         {/* Sidebar color key */}
-        <div style={{ flex: "0 0 250px", marginRight: "1rem" }}>
+        {/* small gap between left portion of screen and category key */}
+        <div style={{ flex: "0 0 250px", marginRight: "1rem", marginLeft: "1rem" }}>
           <CategoryKey
             categories={categories}
             categoryColors={categoryColors}

@@ -4,7 +4,7 @@ import { Card } from 'react-bootstrap';
 
 export default function CategoryKey({ categories, categoryColors }) {
   return (
-    <Card>
+    <Card >
       <Card.Body>
         <h5>Category Key</h5>
         <ul style={{ listStyle: "none", paddingLeft: 0 }}>
