@@ -4,6 +4,7 @@ import NavBar from "./NavBar";
 import { useNavigate } from "react-router-dom";
 import EventCard from "./EventCard";
 import CategoryKey from "./CategoryKey";
+import CategoryFilter from "./CategoryFilter";
 
 const COLOR_PALETTE = [
   "#e25822", "#007bff", "#d9534f", "#6c757d", "#17a2b8",
@@ -86,18 +87,11 @@ function NaturalEventsTracker() {
       <br />
 
       <div className="filter-category-container">
-        <Form.Label><h4>Filter by Category</h4></Form.Label>
-        <Form.Select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          <option value="all">All</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.title}
-            </option>
-          ))}
-        </Form.Select>
+        <CategoryFilter
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          categories={categories}
+        />
       </div>
 
       <br />
