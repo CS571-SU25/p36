@@ -50,3 +50,9 @@ nav {
   font-family: monospace;
   font-size: 0.95rem;
 }
+
+/* Add background gradient to the body */
+body {
+  background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+  background-attachment: fixed;
+}

@@ -88,28 +88,52 @@ function EarthImageViewer() {
 
   // Fetch satellite image from NASA API and update image URL and alt text
   function displayImage() {
-    if (!utcTime) {
-      alert("Please enter a valid EST time.");
+
+    const minLat = minLatitudeRef.current.value;
+    const minLong = minLongitudeRef.current.value;
+    const maxLat = maxLatitudeRef.current.value;
+    const maxLong = maxLongitudeRef.current.value;
+
+    // Check for empty inputs
+    if (!minLat || !minLong || !maxLat || !maxLong || !utcTime) {
+      alert("Please fill in all fields before generating the image.");
       return;
     }
 
-    fetch(
-      `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=MODIS_Terra_CorrectedReflectance_TrueColor&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&HEIGHT=512&WIDTH=512&CRS=EPSG:4326&BBOX=${minLatitudeRef.current.value},${minLongitudeRef.current.value},${maxLatitudeRef.current.value},${maxLongitudeRef.current.value}&TIME=${utcTime}`
-    )
-      .then((res) => res.blob())
-      .then((blob) => {
-        // Create a blob URL for the fetched image
-        setImageURL(URL.createObjectURL(blob));
-        setAltText(`Satellite image of Earth taken on ${utcTime}`);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    // Convert to numbers
+    const minLatNum = parseFloat(minLat);
+    const minLongNum = parseFloat(minLong);
+    const maxLatNum = parseFloat(maxLat);
+    const maxLongNum = parseFloat(maxLong);
+
+    // Check for min > max logic error
+    if (minLatNum > maxLatNum || minLongNum > maxLongNum) {
+      alert("Minimum coordinates must be less than maximum coordinates.");
+      return;
+    }
+
+    // Check for out-of-bound values
+    if (
+      minLatNum < -90 || minLatNum > 90 ||
+      maxLatNum < -90 || maxLatNum > 90 ||
+      minLongNum < -180 || minLongNum > 180 ||
+      maxLongNum < -180 || maxLongNum > 180
+    ) {
+      alert("Out of bound coordinates. Please revisit the Home page to brush up on coordinate ranges.");
+      return;
+    }
+
+    const bbox = `${minLat},${minLong},${maxLat},${maxLong}`;
+
+    const url = `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=MODIS_Terra_CorrectedReflectance_TrueColor&STYLES=&FORMAT=image/jpeg&HEIGHT=512&WIDTH=512&CRS=EPSG:4326&BBOX=${bbox}&TIME=${utcTime}`;
+
+    setImageURL(url);
+    setAltText(`Satellite image of Earth taken on ${utcTime}`);
   }
 
   return (
     <div>
-      <h1 className="page-title">🌍Earth Image Viewer</h1>
+      <h1 className="page-title">🌎Earth Image Viewer</h1>
       <NavBar />
       <br />
 
